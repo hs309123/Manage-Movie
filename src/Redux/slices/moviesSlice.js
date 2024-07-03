@@ -7,26 +7,47 @@ export const moviesSlice = createSlice({
     initialState,
     reducers: {
         addMovie: (state, action) => {
-            const length = state.length
-            const newMovieObj = { ...action.payload, id: length + 1 }
+            const length = state.length || 1
+            const newMovieObj = { ...action.payload, id: length * length * Math.random() }
             state.push(newMovieObj)
         },
         deleteMovie: (state, action) => {
             const id = action.payload.id
-            state.filter((mov) => mov.id !== id)
+            return state.filter((mov) => mov.id !== id)
         },
         updateMovie: (state, action) => {
             const id = action.payload.id
-            let index = null
-            state.forEach((mov, i) => {
-                if (mov.id === id) {
-                    index = i
+            const index = state.findIndex((mov) => mov.id === id);
+            if (index !== -1) {
+                state[index] = action.payload;
+            }
+        },
+        addReviewandRating: (state, action) => {
+            const id = action.payload.id
+            const index = state.findIndex((mov) => mov.id === id);
+            if (index !== -1) {
+                if (action.payload.newReview) {
+                    const reviewLength = state[index]?.reviews.length || 1
+                    const newRev = { ...action.payload.newReview, id: reviewLength * reviewLength * Math.random() }
+                    state[index].reviews.push(newRev);
                 }
-            })
-            if (index) {
-                state[index] = action.payload
+                if (action.payload.rating) {
+                    state[index].rating = action.payload.rating
+                }
+            }
+        },
+        deleteReview: (state, action) => {
+            const id = action.payload.id
+            const index = state.findIndex((mov) => mov.id === id);
+            if (index !== -1) {
+                const reviewId = action.payload.reviewId
+                const reviewIndex = state[index].reviews.findIndex((rev) => rev.id === reviewId);
+                if (reviewIndex !== -1) {
+                    state[index].reviews.splice(reviewIndex, 1)
+                }
             }
         }
+
     },
 })
 
